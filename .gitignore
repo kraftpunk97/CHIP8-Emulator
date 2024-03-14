@@ -1,2 +1,6 @@
 sandbox/
 cmake-build-debug/
+
+*
+!/**/
+!*.*
