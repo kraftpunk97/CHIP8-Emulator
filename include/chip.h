@@ -25,20 +25,27 @@ private:
     unsigned char delay_timer = 0x00; // Counts @ 60Hz
     unsigned char sound_timer = 0x00; // Counts @ 60Hz, sound buzzer when zero.
 
-    // Opcode
+    // Instructions
     void cpuNULL();
     void CLS(); // 00E0
     void RET(); // 00EE
     void SYS(); // 0nnn
-
     void JP(); // 1nnn
     void CALL(); // 2nnn
-
     void SE_byte(); // 3xkk
     void SNE_byte(); // 4xkk
-
     void LD_byte(); // 6xkk
     void ADD_byte(); // 7xkk
+    void LD_Vy(); // 8xy0
+    void OR_Vy(); // 8xy1
+    void AND_Vy(); // 8xy2
+    void XOR_Vy(); // 8xy3
+    void ADD_Vy(); // 8xy4
+    void SUB_Vy(); // 8xy5
+    void SHR_Vy(); // 8xy6
+    void SUBN_Vy(); // 8xy7
+    void SHL_Vy(); // 8xyE
+
 
 public:
     CHIP8();

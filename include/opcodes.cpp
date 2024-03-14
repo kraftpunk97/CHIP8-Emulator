@@ -103,4 +103,83 @@ void CHIP8::ADD_byte() {
     V[x] += kk;
 }
 
-void CHIP8::ADD
+void CHIP8::LD_Vy() {
+    /* Set Vx = Vy
+     * Stores the value of register Vy in register Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    V[x] = V[y];
+}
+
+void CHIP8::OR_Vy() {
+    /* Set Vx = Vx OR Vy.
+     *
+     * Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    V[x] = V[x] | V[y];
+}
+
+void CHIP8::AND_Vy() {
+    /* Set Vx = Vx & Vy
+     *
+     * Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    V[x] = V[x] & V[y];
+}
+
+void CHIP8::XOR_Vy() {
+    /* Set Vx = Vx ^ Vy
+     *
+     * Performs a bitwise XOR on the values of Vx and Vy, then stores the result in Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    V[x] = V[x] ^ V[y];
+}
+
+void CHIP8::ADD_Vy() {
+    /* Set Vx = Vx + Vy, set VF = NOT borrow
+     *
+     * The values of Vx and Vy are added together.
+     * If the result is greater than 8 bits (i.e > 255) VF is set to 1, otherwise 0.
+     * Only the lowest 8 bits of the result are kept, are stored in Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    V[0xf] = (V[x]+V[y]) > 0xff ? 0x01 : 0x00;
+    V[x] = V[x] + V[y];
+}
+
+void CHIP8::SUB_Vy() {
+    /* Set Vx = Vx - Vy, set VF = NOT borrow
+     *
+     * If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy,
+     * and the results stored in Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    V[0xf] = V[x]>V[y] ? 0x01 : 0x00;
+    V[x] = V[y] - V[x];
+}
+
+void CHIP8::SHR_Vy() {
+    /* Set Vx = Vx SHR 1.
+     *  If the least significant bit of Vx is 1, then set VF is set to 1, otherwise 0.
+     *  Then Vx is divided by 2.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+
+    V[0xf] = V[x]%2 == 0x00 ? 0x01 : 0x00;
+    V[x] = V[x] >> 1;
+}
