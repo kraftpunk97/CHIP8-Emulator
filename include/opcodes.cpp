@@ -300,3 +300,75 @@ void CHIP8::LD_Vx_K() {
      */
     // TODO: Implement keyboard first
 }
+
+void CHIP8::LD_DT_Vx() {
+    /* Set delay timer = Vx
+     * DT is set equal to the value of Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    delay_timer = V[x];
+}
+
+void CHIP8::LD_ST_Vx() {
+    /* Set sound timer = Vx
+     * ST is set equal to the value of Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    sound_timer = V[x];
+}
+
+void CHIP8::ADD_Vx() {
+    /* Set I = I + Vx
+     * The values of I and Vx, and the results are stored in I.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    I = I + V[x];
+}
+
+void CHIP8::LD_F_Vx() {
+    /* Set I = location of sprite for digit Vx.
+     *
+     * The value of I is set to the location
+     * for the hexadecimal sprite corresponding
+     * to the value of Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    // TODO: Implement display first.
+}
+
+void CHIP8::LD_B_Vx() {
+    /* Store BCD representation of Vx in memory locations I, I+1, I+2
+     *
+     * The interpreter takes the decimal value of Vx,
+     * and places the hundreds digit in memory at location in I,
+     * the tens digit at location I+1, and the ones digit at location I+2.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    memory[I] = static_cast<unsigned char>(V[x] / 100);
+    memory[I+1] = static_cast<unsigned char>((V[x]%100) / 10);
+    memory[I+2] = static_cast<unsigned char>(V[x] % 10);
+}
+
+void CHIP8::LD_I_Vx() {
+    /* Store registers V0 through Vx in memory starting at location I.
+     *
+     * The interpreter copies the values of registers V0 through Vx into memory,
+     * starting at the address in I.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    for (unsigned char i=0x0; i<=x; i++) {
+        memory[I+i] = V[i];
+    }
+}
+
+void CHIP8::LD_Vx_I() {
+    /* Read registers V0 through Vx from memory starting at location I.
+     *
+     * The interpreter reads values from memory starting at location I
+     * into registers V0 through Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    for (unsigned char i=0x0; i<=x; i++) {
+        V[i] = memory[I+i];
+    }
+}
