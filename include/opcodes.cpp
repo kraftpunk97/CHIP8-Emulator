@@ -1,8 +1,10 @@
 //
 // Created by kxg220013 on 3/13/2024.
 //
-
+#include <random>
 #include "chip.h"
+
+using namespace std;
 
 void CHIP8::cpuNULL() {}
 
@@ -30,12 +32,13 @@ void CHIP8::SYS() {
     cpuNULL();
 }
 
-void CHIP8::JP() {
+void CHIP8::JP_addr() {
     /*
      * Jump to location nnn.
      *
      * The interpreter sets the program counter to nnn.
      */
+    // TODO: Are we sure this is correct?
      pc = opcode & 0b0000111111111111; // extract the last 3 nibbles.
 }
 
@@ -50,9 +53,10 @@ void CHIP8::CALL() {
 
     sp += 1;
     stack[sp] = pc;
+    pc = opcode & 0b0000111111111111;
 }
 
-void CHIP8::SE_byte() {
+void CHIP8::SE_addr() {
     /*
      * Skip next instruction if Vx == kk.
      *
@@ -67,7 +71,7 @@ void CHIP8::SE_byte() {
      }
 }
 
-void CHIP8::SNE_byte() {
+void CHIP8::SNE_addr() {
     /* Skip next instruction if Vx != kk.
      *
      * The interpreter compares register Vx to kk,
@@ -76,22 +80,21 @@ void CHIP8::SNE_byte() {
      unsigned char x = (opcode & 0b0000111100000000) >> 8;
      unsigned char kk = (opcode & 0b0000000011111111);
 
-     if (V[x] != kk) {
+     if (V[x] != kk) { // TODO: This may be incorrect. Look into it.
          pc += 2;
      }
 }
 
-void CHIP8::LD_byte() {
+void CHIP8::LD_Vx_byte() {
     /* Set Vx = kk
      * The interpreter puts the value kk into register Vx.
      */
     unsigned char x = (opcode & 0b0000111100000000) >> 8;
-    unsigned char kk = (opcode & 0b0000000011111111);
 
-    V[x] = kk;
+    V[x] = opcode & 0b0000111111111111;
 }
 
-void CHIP8::ADD_byte() {
+void CHIP8::ADD_addr() {
     /* Set Vx = Vx + kk
      *
      * Adds the value kk to the value of register Vx,
@@ -103,7 +106,7 @@ void CHIP8::ADD_byte() {
     V[x] += kk;
 }
 
-void CHIP8::LD_Vy() {
+void CHIP8::LD_Vx_Vy() {
     /* Set Vx = Vy
      * Stores the value of register Vy in register Vx.
      */
@@ -169,8 +172,8 @@ void CHIP8::SUB_Vy() {
     unsigned char x = (opcode & 0b0000111100000000) >> 8;
     unsigned char y = (opcode & 0b0000000011110000) >> 4;
 
-    V[0xf] = V[x]>V[y] ? 0x01 : 0x00;
-    V[x] = V[y] - V[x];
+    V[0xf] = V[y]>V[x] ? 0x01 : 0x00;
+    V[x] = V[x] - V[y];
 }
 
 void CHIP8::SHR_Vy() {
@@ -182,4 +185,118 @@ void CHIP8::SHR_Vy() {
 
     V[0xf] = V[x]%2 == 0x00 ? 0x01 : 0x00;
     V[x] = V[x] >> 1;
+}
+
+void CHIP8::SUBN_Vy() {
+    /* Set Vx = Vy - Vx, set VF = NOT borrow.
+     *
+     * If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy,
+     * and the results stored in Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    V[0xf] = V[y]>V[x] ? 0x01 : 0x00;
+    V[x] = V[y] - V[x];
+}
+
+void CHIP8::SHL_Vy() {
+    /*  Set Vx = Vx SHL 1.
+     *
+     * If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0.
+     * Then Vx is multiplied by 2.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+
+    V[0xf] = V[x]>0x7f ? 0x01 : 0x00;
+    V[x] = V[x] << 1;
+}
+
+void CHIP8::SNE_Vy() {
+    /* Skip next instruction if Vx != Vy.
+     *
+     * The values of Vx and Vy are compared, and if they are not equal,
+     * the program counter is increased by 2.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char y = (opcode & 0b0000000011110000) >> 4;
+
+    if (V[x] != V[y]) { // TODO: This may be incorrect. Look into it.
+         pc += 2;
+     }
+}
+
+void CHIP8::LD_I_addr() {
+    /* Set I = nnn.
+     *
+     * The value of register I is set to nnn.
+     */
+    I = opcode & 0b0000111111111111;
+}
+
+void CHIP8::JP_V0_addr() {
+    /* Jump to location nnn + V0.
+     *
+     * The program counter is set to nnn plus the value of V0.
+     */
+    pc = V[0x00] + (opcode&0b0000111111111111);
+}
+
+void CHIP8::RND() {
+    /* Set Vx = random byte AND kk.
+     *
+     * The interpreter generates a random number from 0 to 255,
+     * which is then ANDed with the value of kk. The results are stored in Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    unsigned char kk = opcode & 0b0000000011111111;
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_int_distribution<mt19937::result_type> dist(0x00, 0xff);
+    V[x] = kk & (unsigned char)dist(rng);
+}
+
+void CHIP8::DRW() {
+    /* Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+     *
+     * The interpreter reads n bytes from memory, starting at the address stored in I.
+     * These bytes are then displayed as sprites on screen at coordinates (Vx, Vy).
+     * Sprites are XORed the existing screen. If this causes any pixels to be erased,
+     * VF is set to 1, otherwise it is set to 0. If the sprite is positioned so part
+     * of it outside the coordinates of the display, it wraps around to the opposite
+     * side of the screen.
+     */
+    // TODO: Implement display first
+}
+
+void CHIP8::SKP() {
+    /* Skip next instruction if key with the value of Vx is pressed.
+     * Checks the keyboard, and if the key corresponding to the value of Vx
+     * is currently in the up position, PC is increased by 2.
+     */
+    // TODO: Implement keyboard first
+}
+
+void CHIP8::SKNP() {
+    /* Skip next instruction if key with the value of Vx is not pressed.
+     * Checks the keyboard, and if the key corresponding to the value of Vx
+     * is currently in the up position, PC is increased by 2.
+     */
+    // TODO: Implement keyboard first
+}
+
+void CHIP8::LD_Vx_DT() {
+    /* Set Vx = delay timer value.
+     * The value of DT is placed into Vx.
+     */
+    unsigned char x = (opcode & 0b0000111100000000) >> 8;
+    V[x] = delay_timer;
+}
+
+void CHIP8::LD_Vx_K() {
+    /* Wait for a key press, store the value of the key in Vx.
+     * All the execution stops until a key is pressed,
+     * then the value of that key is stored in Vx.
+     */
+    // TODO: Implement keyboard first
 }

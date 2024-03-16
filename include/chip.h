@@ -30,13 +30,13 @@ private:
     void CLS(); // 00E0
     void RET(); // 00EE
     void SYS(); // 0nnn
-    void JP(); // 1nnn
+    void JP_addr(); // 1nnn
     void CALL(); // 2nnn
-    void SE_byte(); // 3xkk
-    void SNE_byte(); // 4xkk
-    void LD_byte(); // 6xkk
-    void ADD_byte(); // 7xkk
-    void LD_Vy(); // 8xy0
+    void SE_addr(); // 3xkk
+    void SNE_addr(); // 4xkk
+    void LD_Vx_byte(); // 6xkk
+    void ADD_addr(); // 7xkk
+    void LD_Vx_Vy(); // 8xy0
     void OR_Vy(); // 8xy1
     void AND_Vy(); // 8xy2
     void XOR_Vy(); // 8xy3
@@ -45,7 +45,22 @@ private:
     void SHR_Vy(); // 8xy6
     void SUBN_Vy(); // 8xy7
     void SHL_Vy(); // 8xyE
-
+    void SNE_Vy(); // 9xy0
+    void LD_I_addr(); // Annn
+    void JP_V0_addr(); // Bnnn
+    void RND(); // Cxkk
+    void DRW(); // Dxyn
+    void SKP(); // Ex9E
+    void SKNP(); // ExA1
+    void LD_Vx_DT(); // Fx07
+    void LD_Vx_K(); // Fx0A
+    void LD_DT_Vx(); // Fx15
+    void LD_ST_Vx(); // Fx18
+    void ADD_Vx(); // Fx1E
+    void LD_F_Vx(); // Fx29
+    void LD_B_Vx(); // Fx33
+    void LD_I_Vx(); // Fx55
+    void LD_Vx_I(); // Fx65
 
 public:
     CHIP8();
