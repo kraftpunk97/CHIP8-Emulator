@@ -35,11 +35,11 @@ void CHIP8::loadProgram(std::string pathname) {
     }
     delete buf;
     file.close();
-    unsigned short opcode_;
+    /*unsigned short opcode_;
     for (int i=0; i<memory_ctr; i+=2) {
         opcode_ = memory[i+PROG_START_MEM]<<8 | memory[i+PROG_START_MEM+1];
-        cout << setw(4) << setfill('0') << hex << opcode_ << endl;
-    }
+        cout << setw(4) << setfill('0') << hex << showbase << opcode_ << endl;
+    }*/
 }
 
 bool CHIP8::checkDrawFlag() { return V[0xf] == 0x01; }
@@ -50,7 +50,8 @@ void CHIP8::emulateCycle() {
     // Fetch instruction from memory
     opcode = memory[pc] << 8 | memory[pc+1];
 
-    // Fetch opcode
+    u_char opcode_msb = opcode >> 12;
+    (this->*chip8_table[opcode_msb])();
 
     // Decode opcode
 

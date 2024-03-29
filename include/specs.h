@@ -9,6 +9,7 @@
 #define GEN_REG_NUM 16
 #define SCREEN_WIDTH 64
 #define SCREEN_HEIGHT 32
+#define GRID_SIZE 10
 #define STACK_SIZE 16
 #define KEYPAD_SIZE 16
 

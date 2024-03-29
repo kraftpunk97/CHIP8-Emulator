@@ -12,6 +12,9 @@ int main(int argc, char* args[]) {
     // Load the game (loadProgram)
     chip8.loadProgram("IBM Logo.ch8");
 
+    for(int i=0; i<4; i++) // TODO: Remove this
+        chip8.emulateCycle();
+
     /*while(true) {
         // Run an emulateCycle();
 
