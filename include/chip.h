@@ -30,6 +30,10 @@ private:
     u_char sound_timer = 0x00; // Counts @ 60Hz, sound buzzer when zero.
     bool draw_flag = false;
 
+
+
+//    Device device;
+
     // Instructions
     void cpuNULL();
     void CLS();        // 00E0
@@ -97,10 +101,12 @@ private:
     };
 
 public:
+
     CHIP8();
     void loadProgram(std::string pathname);
     bool checkDrawFlag();
     void setKeys();
     void emulateCycle();
+    void displayGraphics(void* pDevice); // Textmade
 };
 #endif //CHIP_8_CHIP_H

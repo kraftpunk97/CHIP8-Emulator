@@ -2,11 +2,24 @@ cmake_minimum_required(VERSION 3.22)
 project(CHIP-8)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-add_executable(chip8 main.cpp
-        include/display.h)
+find_package(SDL2 REQUIRED)
+find_package(Threads REQUIRED)
 
-add_subdirectory(include)
+include_directories("include/"
+        ${SDL2_INCLUDE_DIR})
 
-target_link_libraries(chip8 PRIVATE inc)
+set(SOURCE_FILES
+        "include/chip.h"
+        "include/chip.cpp"
+        "include/display.h"
+        "include/display.cpp"
+        "include/specs.h"
+        "include/opcodes.h"
+        "main.cpp")
+
+add_executable(chip8 ${SOURCE_FILES})
+target_link_libraries(chip8 PRIVATE ${SDL2_LIBRARY} Threads::Threads)
  

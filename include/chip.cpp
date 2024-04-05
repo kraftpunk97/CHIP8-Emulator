@@ -4,8 +4,10 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <thread>
 #include "chip.h"
-#include "opcodes.cpp"
+#include "display.h"
+#include "opcodes.h"
 
 using namespace std;
 
@@ -13,7 +15,9 @@ void _0 () {
 
 }
 
-CHIP8::CHIP8() = default;
+CHIP8::CHIP8() {
+    //device = Device();
+};
 
 
 void CHIP8::loadProgram(std::string pathname) {
@@ -42,9 +46,27 @@ void CHIP8::loadProgram(std::string pathname) {
     }*/
 }
 
-bool CHIP8::checkDrawFlag() { return V[0xf] == 0x01; }
+bool CHIP8::checkDrawFlag() { return draw_flag; }
 
 void CHIP8::setKeys() {}
+
+void CHIP8::displayGraphics(void* pDevice=nullptr) {
+    if (pDevice == nullptr) { // Text mode
+        int sum = 0;
+        for (auto pixel_elem: gfx) { sum += pixel_elem; }
+        for (int y=0; y<SCREEN_HEIGHT; y++) {
+            for (int x=0; x<SCREEN_WIDTH; x++) {
+             cout << (gfx[x*SCREEN_HEIGHT+y] ? '0' : ' ') << ' ';
+            }
+            cout << endl;
+        }
+    }
+    else {
+        auto device_ptr = static_cast<Device *>(pDevice);
+        device_ptr->updateDisplay(gfx);
+    }
+    draw_flag = false; // Unset the draw_flag.
+}
 
 void CHIP8::emulateCycle() {
     // Fetch instruction from memory
