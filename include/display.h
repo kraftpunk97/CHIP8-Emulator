@@ -23,6 +23,9 @@ public:
     Device();
     ~Device();
 
+    // updateDisplay needs to be defined HERE (and not in display.cpp),
+    // because TEMPLATE member functions need to be defined where they are declared;
+    // otherwise it causes linkage issues.
     template <size_t N> void updateDisplay(array<bool, N> gfx) {
         for (int y = 0; y < screen_height; y += GRID_SIZE) {
             for (int x = 0; x < screen_width; x += GRID_SIZE) {
