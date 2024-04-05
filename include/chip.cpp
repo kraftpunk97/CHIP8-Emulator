@@ -11,13 +11,7 @@
 
 using namespace std;
 
-void _0 () {
-
-}
-
-CHIP8::CHIP8() {
-    //device = Device();
-};
+CHIP8::CHIP8() = default;
 
 
 void CHIP8::loadProgram(std::string pathname) {
@@ -47,6 +41,7 @@ void CHIP8::loadProgram(std::string pathname) {
 }
 
 bool CHIP8::checkDrawFlag() { return draw_flag; }
+bool CHIP8::checkValidPC() { return pc < MEMORY_SIZE; }
 
 void CHIP8::setKeys() {}
 

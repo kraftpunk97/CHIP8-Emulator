@@ -58,7 +58,7 @@ private:
     void SUBN_Vy();    // 8xy7
     void SHL_Vy();     // 8xyE
 
-    void SNE_Vy();     // 9xy0
+    void SNE_Vx_Vy();     // 9xy0
     void LD_I_addr();  // Annn
     void JP_V0_addr(); // Bnnn
     void RND();        // Cxkk
@@ -91,7 +91,7 @@ private:
                                         &CHIP8::LD_Vx_byte,
                                         &CHIP8::ADD_addr,
                                         &CHIP8::cpuNULL,  // TODO: Create opcode8
-                                        &CHIP8::SNE_Vy,
+                                        &CHIP8::SNE_Vx_Vy,
                                         &CHIP8::LD_I_addr,
                                         &CHIP8::JP_V0_addr,
                                         &CHIP8::RND,
@@ -105,8 +105,10 @@ public:
     CHIP8();
     void loadProgram(std::string pathname);
     bool checkDrawFlag();
+    bool checkValidPC();
     void setKeys();
     void emulateCycle();
     void displayGraphics(void* pDevice); // Textmade
+
 };
 #endif //CHIP_8_CHIP_H

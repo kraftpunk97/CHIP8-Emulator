@@ -72,8 +72,13 @@ void CHIP8::RET() {
      * The interpreter sets the program counter to the address at the
      * top of the stack, then subtracts 1 from the stack pointer.
      */
-    pc = stack[sp];
+
+    // stack[sp] is the call function, which has already been executed;
+    // execute the next instruction to prevent runaway recursion.
+    pc = stack[sp] + 2;
     sp -= 1;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::RET. pc = " << pc << endl;
 }
 
 void CHIP8::SYS() {
@@ -94,6 +99,8 @@ void CHIP8::JP_addr() {
      */
     // TODO: Are we sure this is correct?
      pc = opcode & 0b0000111111111111; // extract the last 3 nibbles.
+     cout << setw(4) << setfill('0') << hex << opcode;
+     cout << ": CHIP8::JP_addr. pc = " << pc << endl;
 }
 
 void CHIP8::CALL() {
@@ -105,9 +112,16 @@ void CHIP8::CALL() {
      * The PC is then set to nnn.
      */
 
+    u_short nnn = opcode & 0b0000111111111111;
     sp += 1;
     stack[sp] = pc;
-    pc = opcode & 0b0000111111111111;
+    pc = nnn;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::CALL. "
+            " sp = " << static_cast<u_short>(sp) <<
+            " stack[sp] = " << stack[sp] <<
+            " pc = " << pc << endl;
+
 }
 
 void CHIP8::SE_addr() {
@@ -120,9 +134,13 @@ void CHIP8::SE_addr() {
     u_char kk = (opcode & 0b0000000011111111);
     u_char x = (opcode & 0b0000111100000000) >> 8;
 
-    if (V[x] != kk) {
-         pc += 2;
-     }
+    pc += V[x] == kk ? 4 : 2;
+
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::SE_addr. x = " << static_cast<u_short>(x) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " kk = " << static_cast<u_short>(kk) <<
+            " pc = " << static_cast<u_short>(pc) << endl;
 }
 
 void CHIP8::SNE_addr() {
@@ -134,9 +152,13 @@ void CHIP8::SNE_addr() {
      u_char x = (opcode & 0b0000111100000000) >> 8;
      u_char kk = (opcode & 0b0000000011111111);
 
-     if (V[x] != kk) { // TODO: This may be incorrect. Look into it.
-         pc += 2;
-     }
+     pc += V[x] != kk ? 4 : 2;
+
+     cout << setw(4) << setfill('0') << hex << opcode;
+     cout << ": CHIP8::SNE_addr. x = " << static_cast<u_short>(x) <<
+             " Vx = " << static_cast<u_short>(V[x]) <<
+             " kk = " << static_cast<u_short>(kk) <<
+             " pc = " << static_cast<u_short>(pc) << endl;
 }
 
 void CHIP8::SE_Vx_Vy() {
@@ -153,7 +175,12 @@ void CHIP8::SE_Vx_Vy() {
     if (k == 0x0) {
         pc += V[x] == V[y] ? 4 : 2;
         cout << setw(4) << setfill('0') << hex << opcode;
-        cout << ": CHIP8::SE_Vx_Vy. The Vx = " << V[x] << " Vy = " << V[y] << ". pc set to " << pc << endl;
+        cout << ": CHIP8::SE_Vx_Vy. "
+                " x = " << static_cast<u_short>(x) <<
+                " y = " << static_cast<u_short>(y) <<
+                " Vx = " << static_cast<u_short>(V[x]) <<
+                " Vy = " << static_cast<u_short>(V[y]) <<
+                " pc = " << pc << endl;
     }
     else
         cpuNULL();
@@ -168,7 +195,10 @@ void CHIP8::LD_Vx_byte() {
     V[x] = opcode & 0b0000111111111111;
     pc += 2;
     cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_Vx_byte. x = " << static_cast<u_short>(x) << " Vx = " << static_cast<u_short>(V[x]) << "." << endl;
+    cout << ": CHIP8::LD_Vx_byte. "
+            "x = " << static_cast<u_short>(x) <<
+            " Vx = " << static_cast<u_short>(V[x])  <<
+            " pc = " << pc << endl;
 }
 
 void CHIP8::ADD_addr() {
@@ -183,7 +213,11 @@ void CHIP8::ADD_addr() {
     V[x] += kk;
     pc += 2;
     cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::ADD_addr. x=" << static_cast<u_short>(x) << " kk=" << static_cast<u_short>(kk) << " Vx = " << static_cast<u_short>(V[x]) << "." << endl;
+    cout << ": CHIP8::ADD_addr. "
+            " x =" << static_cast<u_short>(x) <<
+            " kk = " << static_cast<u_short>(kk) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " pc = " << pc << endl;
 }
 
 void CHIP8::LD_Vx_Vy() {
@@ -293,7 +327,7 @@ void CHIP8::SHL_Vy() {
     V[x] = V[x] << 1;
 }
 
-void CHIP8::SNE_Vy() {
+void CHIP8::SNE_Vx_Vy() {
     /* Skip next instruction if Vx != Vy.
      *
      * The values of Vx and Vy are compared, and if they are not equal,
@@ -302,9 +336,14 @@ void CHIP8::SNE_Vy() {
     u_char x = (opcode & 0b0000111100000000) >> 8;
     u_char y = (opcode & 0b0000000011110000) >> 4;
 
-    if (V[x] != V[y]) { // TODO: This may be incorrect. Look into it.
-         pc += 2;
-     }
+    pc += V[x] != V[y] ? 4 : 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::SNE_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " pc = " << pc << endl;
 }
 
 void CHIP8::LD_I_addr() {
@@ -316,8 +355,8 @@ void CHIP8::LD_I_addr() {
     pc += 2;
     cout << setw(4) << setfill('0') << hex << opcode;
     cout << ": CHIP8::LD_I_addr called. ";
-    cout << "I has been set to " << I << ". ";
-    cout << "pc has been updated to " << pc << endl;
+    cout << "I = " << I << " ";
+    cout << "pc = " << pc << endl;
 }
 
 void CHIP8::JP_V0_addr() {
@@ -384,8 +423,11 @@ void CHIP8:: DRW() {
     int sum = 0;
     for (int pixel_elem: gfx) { sum += pixel_elem; }
     cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::DRW. x=" << static_cast<u_short>(x) << " y=" << static_cast<u_short>(y) << " n=" << static_cast<u_short>(n) <<
-        " VF=" << static_cast<u_short>(V[0xf]) << endl;
+    cout << ": CHIP8::DRW. x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " n = " << static_cast<u_short>(n) <<
+            " VF = " << static_cast<u_short>(V[0xf]) <<
+            " pc = " << pc << endl;
     // TODO: Implement display first
 }
 

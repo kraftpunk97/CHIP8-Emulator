@@ -18,17 +18,21 @@ int main(int argc, char* args[]) {
     // Load the game (loadProgram)
     //chip8.displayGraphics();
 
-    chip8.loadProgram("IBM Logo.ch8");
+    chip8.loadProgram("test_opcode.ch8");
     int clock_time_period = 1000/CLOCK_FREQ; // Rounded to the nearest millisecond
-    for(int i=0; i<22; i++) { // TODO: Remove this
+    while(chip8.checkValidPC()) {
 
+        // Run an emulateCycle();
         chip8.emulateCycle();
 
+        // If drawFlag has been set by DRW
         if (chip8.checkDrawFlag()) { //
             chip8.displayGraphics(&device);
-            cout << endl;
-            cout << endl;
         }
+
+        // Store the press sttes (Press and release), call setKeys()
+
+
         this_thread::sleep_for(chrono::milliseconds(clock_time_period));
     }
 
