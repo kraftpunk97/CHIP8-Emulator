@@ -3,7 +3,6 @@
 //
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 #include <thread>
 #include "chip.h"
 #include "display.h"

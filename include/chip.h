@@ -49,14 +49,14 @@ private:
     void ADD_addr();   // 7xkk
 
     void LD_Vx_Vy();   // 8xy0
-    void OR_Vy();      // 8xy1
-    void AND_Vy();     // 8xy2
-    void XOR_Vy();     // 8xy3
-    void ADD_Vy();     // 8xy4
-    void SUB_Vy();     // 8xy5
-    void SHR_Vy();     // 8xy6
-    void SUBN_Vy();    // 8xy7
-    void SHL_Vy();     // 8xyE
+    void OR_Vx_Vy();   // 8xy1
+    void AND_Vx_Vy();  // 8xy2
+    void XOR_Vx_Vy();  // 8xy3
+    void ADD_Vx_Vy();  // 8xy4
+    void SUB_Vx_Vy();  // 8xy5
+    void SHR_Vx();     // 8xy6
+    void SUBN_Vx_Vy(); // 8xy7
+    void SHL_Vx();     // 8xyE
 
     void SNE_Vx_Vy();     // 9xy0
     void LD_I_addr();  // Annn
@@ -80,6 +80,7 @@ private:
     void opcode0();
     void opcode00();
     void opcode00E();
+    void opcode8();
 
     // Array of function pointers
     void (CHIP8::*chip8_table[16])() = {&CHIP8::opcode0,
@@ -90,7 +91,7 @@ private:
                                         &CHIP8::SE_Vx_Vy,
                                         &CHIP8::LD_Vx_byte,
                                         &CHIP8::ADD_addr,
-                                        &CHIP8::cpuNULL,  // TODO: Create opcode8
+                                        &CHIP8::opcode8,
                                         &CHIP8::SNE_Vx_Vy,
                                         &CHIP8::LD_I_addr,
                                         &CHIP8::JP_V0_addr,

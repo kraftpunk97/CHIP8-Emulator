@@ -48,10 +48,33 @@ void CHIP8::opcode00E() {
     (this->*opcode00E_table[x])();
 }
 
+void CHIP8::opcode8() {
+    cout << "Entering opcode8" << endl;
+    u_char k = opcode & 0b0000000000001111;
+    void (CHIP8::*opcode8_table[16])() = { &CHIP8::LD_Vx_Vy,
+                                           &CHIP8::OR_Vx_Vy,
+                                           &CHIP8::AND_Vx_Vy,
+                                           &CHIP8::XOR_Vx_Vy,
+                                           &CHIP8::ADD_Vx_Vy,
+                                           &CHIP8::SUB_Vx_Vy,
+                                           &CHIP8::SHR_Vx,
+                                           &CHIP8::SUBN_Vx_Vy,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::SHL_Vx,
+                                           &CHIP8::cpuNULL };
+    (this->*opcode8_table[k])();
+}
+
 void CHIP8::cpuNULL() {
     cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::cpuNULL called." << endl;
     pc += 2;
+    cout << ": CHIP8::cpuNULL called." <<
+            "pc = " << pc << endl;
 }
 
 void CHIP8::CLS() {
@@ -61,9 +84,11 @@ void CHIP8::CLS() {
     }
     draw_flag = true;
     cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::CLS called." << endl;
     pc += 2;
     draw_flag = true;
+    cout << ": CHIP8::CLS called." <<
+            "draw_flag = " << draw_flag <<
+            "pc = " << pc << endl;
 }
 
 void CHIP8::RET() {
@@ -79,6 +104,7 @@ void CHIP8::RET() {
     sp -= 1;
     cout << setw(4) << setfill('0') << hex << opcode;
     cout << ": CHIP8::RET. pc = " << pc << endl;
+
 }
 
 void CHIP8::SYS() {
@@ -97,7 +123,6 @@ void CHIP8::JP_addr() {
      *
      * The interpreter sets the program counter to nnn.
      */
-    // TODO: Are we sure this is correct?
      pc = opcode & 0b0000111111111111; // extract the last 3 nibbles.
      cout << setw(4) << setfill('0') << hex << opcode;
      cout << ": CHIP8::JP_addr. pc = " << pc << endl;
@@ -214,7 +239,7 @@ void CHIP8::ADD_addr() {
     pc += 2;
     cout << setw(4) << setfill('0') << hex << opcode;
     cout << ": CHIP8::ADD_addr. "
-            " x =" << static_cast<u_short>(x) <<
+            " x = " << static_cast<u_short>(x) <<
             " kk = " << static_cast<u_short>(kk) <<
             " Vx = " << static_cast<u_short>(V[x]) <<
             " pc = " << pc << endl;
@@ -229,9 +254,16 @@ void CHIP8::LD_Vx_Vy() {
 
     V[x] = V[y];
     pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::LD_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::OR_Vy() {
+void CHIP8::OR_Vx_Vy() {
     /* Set Vx = Vx OR Vy.
      *
      * Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
@@ -240,9 +272,17 @@ void CHIP8::OR_Vy() {
     u_char y = (opcode & 0b0000000011110000) >> 4;
 
     V[x] = V[x] | V[y];
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::OR_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::AND_Vy() {
+void CHIP8::AND_Vx_Vy() {
     /* Set Vx = Vx & Vy
      *
      * Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
@@ -251,9 +291,17 @@ void CHIP8::AND_Vy() {
     u_char y = (opcode & 0b0000000011110000) >> 4;
 
     V[x] = V[x] & V[y];
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::AND_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::XOR_Vy() {
+void CHIP8::XOR_Vx_Vy() {
     /* Set Vx = Vx ^ Vy
      *
      * Performs a bitwise XOR on the values of Vx and Vy, then stores the result in Vx.
@@ -262,9 +310,17 @@ void CHIP8::XOR_Vy() {
     u_char y = (opcode & 0b0000000011110000) >> 4;
 
     V[x] = V[x] ^ V[y];
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::XOR_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::ADD_Vy() {
+void CHIP8::ADD_Vx_Vy() {
     /* Set Vx = Vx + Vy, set VF = NOT borrow
      *
      * The values of Vx and Vy are added together.
@@ -276,9 +332,18 @@ void CHIP8::ADD_Vy() {
 
     V[0xf] = (V[x]+V[y]) > 0xff ? 0x01 : 0x00;
     V[x] = V[x] + V[y];
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::ADD_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " VF = " << static_cast<u_short>(V[0xf]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::SUB_Vy() {
+void CHIP8::SUB_Vx_Vy() {
     /* Set Vx = Vx - Vy, set VF = NOT borrow
      *
      * If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy,
@@ -289,9 +354,18 @@ void CHIP8::SUB_Vy() {
 
     V[0xf] = V[y]>V[x] ? 0x01 : 0x00;
     V[x] = V[x] - V[y];
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::SUB_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " VF = " << static_cast<u_short>(V[0xf]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::SHR_Vy() {
+void CHIP8::SHR_Vx() {
     /* Set Vx = Vx SHR 1.
      *  If the least significant bit of Vx is 1, then set VF is set to 1, otherwise 0.
      *  Then Vx is divided by 2.
@@ -300,9 +374,16 @@ void CHIP8::SHR_Vy() {
 
     V[0xf] = V[x]%2 == 0x00 ? 0x01 : 0x00;
     V[x] = V[x] >> 1;
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::SHR_Vx. "
+            " x = " << static_cast<u_short>(x) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " VF = " << static_cast<u_short>(V[0xf]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::SUBN_Vy() {
+void CHIP8::SUBN_Vx_Vy() {
     /* Set Vx = Vy - Vx, set VF = NOT borrow.
      *
      * If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy,
@@ -313,9 +394,18 @@ void CHIP8::SUBN_Vy() {
 
     V[0xf] = V[y]>V[x] ? 0x01 : 0x00;
     V[x] = V[y] - V[x];
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::SUB_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " y = " << static_cast<u_short>(y) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " Vy = " << static_cast<u_short>(V[y]) <<
+            " VF = " << static_cast<u_short>(V[0xf]) <<
+            " pc = " << pc << endl;
 }
 
-void CHIP8::SHL_Vy() {
+void CHIP8::SHL_Vx() {
     /*  Set Vx = Vx SHL 1.
      *
      * If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0.
@@ -325,6 +415,13 @@ void CHIP8::SHL_Vy() {
 
     V[0xf] = V[x]>0x7f ? 0x01 : 0x00;
     V[x] = V[x] << 1;
+    pc += 2;
+    cout << setw(4) << setfill('0') << hex << opcode;
+    cout << ": CHIP8::SUB_Vx_Vy. "
+            " x = " << static_cast<u_short>(x) <<
+            " Vx = " << static_cast<u_short>(V[x]) <<
+            " VF = " << static_cast<u_short>(V[0xf]) <<
+            " pc = " << pc << endl;
 }
 
 void CHIP8::SNE_Vx_Vy() {
@@ -428,7 +525,6 @@ void CHIP8:: DRW() {
             " n = " << static_cast<u_short>(n) <<
             " VF = " << static_cast<u_short>(V[0xf]) <<
             " pc = " << pc << endl;
-    // TODO: Implement display first
 }
 
 void CHIP8::SKP() {
