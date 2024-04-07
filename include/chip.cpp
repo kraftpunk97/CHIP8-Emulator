@@ -10,7 +10,40 @@
 
 using namespace std;
 
-CHIP8::CHIP8() = default;
+CHIP8::CHIP8() {
+    // Initializing the array of function pointers for opcode0's
+    for (auto& opcode_ : CHIP8::opcode0_table) {
+        opcode_ = &CHIP8::SYS;
+    }
+    opcode0_table[0x0] = &CHIP8::opcode00;
+
+    // Initializing the array of function pointers for opcode00's
+    for (auto& opcode_: opcode00_table) {
+        opcode_ = &CHIP8::cpuNULL;
+    }
+    opcode00_table[0xe] = &CHIP8::opcode00E;
+
+    // Initializing the array of function pointers for opcode00E's
+    for (auto& opcode_: opcode00E_table) {
+        opcode_ = &CHIP8::cpuNULL;
+    }
+    opcode00E_table[0x0] = &CHIP8::CLS;
+    opcode00E_table[0xe] = &CHIP8::RET;
+
+    // Initializing the array of function pointers for opcodeF's
+    for (auto& opcode_ : opcodeF_table) {
+        opcode_ = &CHIP8::cpuNULL;
+    }
+    opcodeF_table[0x07] = &CHIP8::LD_Vx_DT;
+    opcodeF_table[0x0a] = &CHIP8::LD_Vx_K;
+    opcodeF_table[0x15] = &CHIP8::LD_DT_Vx;
+    opcodeF_table[0x18] = &CHIP8::LD_ST_Vx;
+    opcodeF_table[0x1e] = &CHIP8::ADD_I_Vx;
+    opcodeF_table[0x29] = &CHIP8::LD_F_Vx;
+    opcodeF_table[0x33] = &CHIP8::LD_B_Vx;
+    opcodeF_table[0x55] = &CHIP8::LD_I_Vx;
+    opcodeF_table[0x65] = &CHIP8::LD_Vx_I;
+}
 
 
 void CHIP8::loadProgram(std::string pathname) {

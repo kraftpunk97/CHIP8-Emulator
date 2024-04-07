@@ -58,7 +58,7 @@ private:
     void SUBN_Vx_Vy(); // 8xy7
     void SHL_Vx();     // 8xyE
 
-    void SNE_Vx_Vy();     // 9xy0
+    void SNE_Vx_Vy();  // 9xy0
     void LD_I_addr();  // Annn
     void JP_V0_addr(); // Bnnn
     void RND();        // Cxkk
@@ -71,7 +71,7 @@ private:
     void LD_Vx_K();    // Fx0A
     void LD_DT_Vx();   // Fx15
     void LD_ST_Vx();   // Fx18
-    void ADD_Vx();     // Fx1E
+    void ADD_I_Vx();   // Fx1E
     void LD_F_Vx();    // Fx29
     void LD_B_Vx();    // Fx33
     void LD_I_Vx();    // Fx55
@@ -81,6 +81,7 @@ private:
     void opcode00();
     void opcode00E();
     void opcode8();
+    void opcodeF();
 
     // Array of function pointers
     void (CHIP8::*chip8_table[16])() = {&CHIP8::opcode0,
@@ -98,8 +99,29 @@ private:
                                         &CHIP8::RND,
                                         &CHIP8::DRW,
                                         &CHIP8::cpuNULL, // TODO: Create opcodeE
-                                        &CHIP8::cpuNULL  // TODO: Create opcodeF
+                                        &CHIP8::opcodeF
     };
+    void (CHIP8::*opcode0_table[16])();
+    void (CHIP8::*opcode00_table[16])();
+    void (CHIP8::*opcode00E_table[16])();
+    void (CHIP8::*opcode8_table[16])() = { &CHIP8::LD_Vx_Vy,
+                                           &CHIP8::OR_Vx_Vy,
+                                           &CHIP8::AND_Vx_Vy,
+                                           &CHIP8::XOR_Vx_Vy,
+                                           &CHIP8::ADD_Vx_Vy,
+                                           &CHIP8::SUB_Vx_Vy,
+                                           &CHIP8::SHR_Vx,
+                                           &CHIP8::SUBN_Vx_Vy,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::cpuNULL,
+                                           &CHIP8::SHL_Vx,
+                                           &CHIP8::cpuNULL
+    };
+    void (CHIP8::*opcodeF_table[0xff])();
 
 public:
 
@@ -109,7 +131,7 @@ public:
     bool checkValidPC();
     void setKeys();
     void emulateCycle();
-    void displayGraphics(void* pDevice); // Textmade
+    void displayGraphics(void* pDevice);
 
 };
 #endif //CHIP_8_CHIP_H
