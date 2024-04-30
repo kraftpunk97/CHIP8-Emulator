@@ -3,9 +3,8 @@
 //
 #include <iostream>
 #include <fstream>
-#include <thread>
 #include "chip.h"
-#include "display.h"
+#include "device.h"
 #include "opcodes.h"
 #include "font.h"
 
@@ -84,9 +83,17 @@ void CHIP8::loadProgram(std::string pathname) {
 bool CHIP8::checkDrawFlag() { return draw_flag; }
 bool CHIP8::checkValidPC() { return pc < MEMORY_SIZE; }
 
-void CHIP8::setKeys() {}
+void CHIP8::setKeys(Device *pDevice) {
+    pDevice->getKeyboardState(keys);
+}
 
-void CHIP8::displayGraphics(void* pDevice=nullptr) {
+void CHIP8::resetKeys() {
+    for (auto &key: keys){
+        key = false;
+    }
+}
+
+void CHIP8::displayGraphics(Device *pDevice=nullptr) {
     if (pDevice == nullptr) { // Text mode
         int sum = 0;
         for (auto pixel_elem: gfx) { sum += pixel_elem; }
@@ -98,8 +105,7 @@ void CHIP8::displayGraphics(void* pDevice=nullptr) {
         }
     }
     else {
-        auto device_ptr = static_cast<Device *>(pDevice);
-        device_ptr->updateDisplay(gfx);
+        pDevice->updateDisplay(gfx);
     }
     draw_flag = false; // Unset the draw_flag.
 }
@@ -107,6 +113,7 @@ void CHIP8::displayGraphics(void* pDevice=nullptr) {
 void CHIP8::emulateCycle() {
     // Fetch instruction from memory
     opcode = memory[pc] << 8 | memory[pc+1];
+
 
     u_char opcode_msb = opcode >> 12;
     (this->*chip8_table[opcode_msb])();
@@ -116,4 +123,16 @@ void CHIP8::emulateCycle() {
     // Execute opcode
 
     // Update timers
+    if (delay_timer > 0) {
+        delay_timer--;
+        cout << "Delay_timer = " << static_cast<u_short>(delay_timer) << "\n";
+    }
+
+    if (sound_timer > 0) {
+        if (sound_timer == 1) {
+            cout << "BEEP!!!\n"; // TODO: An actual beep
+        }
+        sound_timer--;
+        cout << "Sound_timer = " << sound_timer << "\n";
+    }
 }

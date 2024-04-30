@@ -7,19 +7,20 @@
 
 #include <array>
 #include <string>
+#include "device.h"
 #include "specs.h"
 
 
 class CHIP8 {
 private:
-    std::array<u_char, MEMORY_SIZE> memory{static_cast<u_char>(0x00)};
-    std::array<u_char, GEN_REG_NUM> V{static_cast<u_char>(0x00)}; // General Purpose Registers
+    std::array<u_char, MEMORY_SIZE> memory{0x00};
+    std::array<u_char, GEN_REG_NUM> V{0x00}; // General Purpose Registers
     // If a pixel is turned off as a result of drawing, VF is set.
 
     // Array for holding the pixel state, row-major
     std::array<bool, SCREEN_WIDTH*SCREEN_HEIGHT> gfx{static_cast<u_char>(0x00)};
-    std::array<u_char, KEYPAD_SIZE> key{static_cast<u_char>(0x00)}; // Used for storing keypad presses between emulation cycles
-    std::array<u_short, STACK_SIZE> stack{static_cast<u_short>(0x00)};
+    std::array<bool, KEYPAD_SIZE> keys{static_cast<u_char>(0x00)}; // Used for storing keypad presses between emulation cycles
+    std::array<u_short, STACK_SIZE> stack{0x00};
     u_short opcode;
     u_short I = 0x0000; // Index Register
     u_short pc = PROG_START_MEM; // Program Counter
@@ -27,7 +28,7 @@ private:
     u_char delay_timer = 0x00; // Counts @ 60Hz
     u_char sound_timer = 0x00; // Counts @ 60Hz, sound buzzer when zero.
     bool draw_flag = false;
-
+    int wait_for_key = 0;
 
 
 //    Device device;
@@ -80,6 +81,7 @@ private:
     void opcode00E();
     void opcode8();
     void opcodeF();
+    void opcodeE();
 
     // Array of function pointers
     void (CHIP8::*chip8_table[16])() = {&CHIP8::opcode0,
@@ -96,7 +98,7 @@ private:
                                         &CHIP8::JP_V0_addr,
                                         &CHIP8::RND,
                                         &CHIP8::DRW,
-                                        &CHIP8::cpuNULL, // TODO: Create opcodeE
+                                        &CHIP8::opcodeE, // TODO: Create opcodeE
                                         &CHIP8::opcodeF
     };
     void (CHIP8::*opcode0_table[16])();
@@ -127,9 +129,10 @@ public:
     void loadProgram(std::string pathname);
     bool checkDrawFlag();
     bool checkValidPC();
-    void setKeys();
+    void setKeys(Device *pDevice);
+    void resetKeys();
     void emulateCycle();
-    void displayGraphics(void* pDevice);
+    void displayGraphics(Device *pDevice);
 
 };
 #endif //CHIP_8_CHIP_H
