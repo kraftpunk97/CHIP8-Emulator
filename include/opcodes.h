@@ -302,10 +302,10 @@ void CHIP8::ADD_Vx_Vy() {
      */
     u_char x = (opcode & 0b0000111100000000) >> 8;
     u_char y = (opcode & 0b0000000011110000) >> 4;
-    u_char VF_temp = V[0xf];
+    u_char VF_temp;
 
 
-    VF_temp = V[x] > (0xff-V[y]) ? static_cast<u_char>(0x01) : static_cast<u_char>(0x00);
+    VF_temp = V[x] > (0xff-V[y]) ? 0x01 : 0x00;
     V[x] = V[x] + V[y];
     V[0xf] = VF_temp;
 
@@ -328,7 +328,7 @@ void CHIP8::SUB_Vx_Vy() {
      */
     u_char x = (opcode & 0b0000111100000000) >> 8;
     u_char y = (opcode & 0b0000000011110000) >> 4;
-    u_char VF_temp = V[0xf];
+    u_char VF_temp;
 
     cout << setw(4) << setfill('0') << hex << opcode;
     cout << ": CHIP8::SUB_Vx_Vy. "
@@ -336,7 +336,7 @@ void CHIP8::SUB_Vx_Vy() {
             " y = "  << static_cast<u_short>(y) <<
             " Vx = " << static_cast<u_short>(V[x]) <<
             " Vy = " << static_cast<u_short>(V[y]);
-    VF_temp = V[x] > V[y] ? static_cast<u_char>(0x01) : static_cast<u_char>(0x00);
+    VF_temp = V[x]>=V[y] ? 0x01 : 0x00;
     V[x] = V[x] - V[y];
     V[0xf] = VF_temp;
     pc += 2;
@@ -351,7 +351,7 @@ void CHIP8::SHR_Vx() {
      *  Then Vx is divided by 2.
      */
     u_char x = (opcode & 0b0000111100000000) >> 8;
-    u_char VF_temp = V[0xf];
+    u_char VF_temp;
 
     VF_temp = (V[x]&0x01)==0x01  ? 0x01 : 0x00;
     V[x] = V[x] >> 1;
@@ -373,9 +373,9 @@ void CHIP8::SUBN_Vx_Vy() {
      */
     u_char x = (opcode & 0b0000111100000000) >> 8;
     u_char y = (opcode & 0b0000000011110000) >> 4;
-    u_char VF_temp = V[0xf];
+    u_char VF_temp;
 
-    VF_temp = V[y]>V[x] ? 0x01 : 0x00;
+    VF_temp = V[y]>=V[x] ? 0x01 : 0x00;
     V[x] = V[y] - V[x];
     V[0xf] = VF_temp;
     pc += 2;
@@ -396,7 +396,7 @@ void CHIP8::SHL_Vx() {
      * Then Vx is multiplied by 2.
      */
     u_char x = (opcode & 0b0000111100000000) >> 8;
-    u_char VF_temp = V[0xf];
+    u_char VF_temp;
 
     VF_temp = V[x]>0x7f ? 0x01 : 0x00;
     V[x] = V[x] << 1;
