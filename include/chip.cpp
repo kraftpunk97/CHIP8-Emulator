@@ -7,10 +7,14 @@
 #include "chip.h"
 #include "display.h"
 #include "opcodes.h"
+#include "font.h"
 
 using namespace std;
 
 CHIP8::CHIP8() {
+    // Init VF to 0
+    V[0xf] = static_cast<u_char>(0x00);
+
     // Initializing the array of function pointers for opcode0's
     for (auto& opcode_ : CHIP8::opcode0_table) {
         opcode_ = &CHIP8::SYS;
@@ -43,6 +47,11 @@ CHIP8::CHIP8() {
     opcodeF_table[0x33] = &CHIP8::LD_B_Vx;
     opcodeF_table[0x55] = &CHIP8::LD_I_Vx;
     opcodeF_table[0x65] = &CHIP8::LD_Vx_I;
+
+    // Loading the font sprites
+    for (int i=0; i<font_sprites.size(); i++) {
+        memory[FONT_START_MEM+i] = font_sprites[i];
+    }
 }
 
 
@@ -51,7 +60,7 @@ void CHIP8::loadProgram(std::string pathname) {
     file.open(pathname, ios::binary);
 
     if (not file.is_open()) {
-        cout << pathname << " can not be opened.";
+        cout << pathname << " can not be opened." << endl;
         // TODO: Throw exception
     }
 

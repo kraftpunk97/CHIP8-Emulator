@@ -18,7 +18,8 @@ set(SOURCE_FILES
         "include/display.cpp"
         "include/specs.h"
         "include/opcodes.h"
-        "main.cpp")
+        "main.cpp"
+        "include/font.h")
 
 add_executable(chip8 ${SOURCE_FILES})
 target_link_libraries(chip8 PRIVATE ${SDL2_LIBRARY} Threads::Threads)

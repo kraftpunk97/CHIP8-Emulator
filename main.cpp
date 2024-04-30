@@ -18,7 +18,7 @@ int main(int argc, char* args[]) {
     // Load the game (loadProgram)
     //chip8.displayGraphics();
 
-    chip8.loadProgram("test_opcode.ch8");
+    chip8.loadProgram("../chip8-roms/programs/4-flags.ch8");
     int clock_time_period = 1000/CLOCK_FREQ; // Rounded to the nearest millisecond
     while(chip8.checkValidPC()) {
 

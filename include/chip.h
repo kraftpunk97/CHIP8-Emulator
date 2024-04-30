@@ -9,8 +9,6 @@
 #include <string>
 #include "specs.h"
 
-#define u_char unsigned char   // 1 byte; 8 bits
-#define u_short unsigned short // 2 bytes; 16 bits
 
 class CHIP8 {
 private:

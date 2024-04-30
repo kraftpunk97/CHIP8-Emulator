@@ -15,7 +15,10 @@
 #define STACK_SIZE 16
 #define KEYPAD_SIZE 16
 
+#define u_char unsigned char   // 1 byte; 8 bits
+#define u_short unsigned short // 2 bytes; 16 bits
 
 // Memory specs
 #define PROG_START_MEM 0x200
+#define FONT_START_MEM 0x000
 #endif //CHIP_8_SPECS_H
