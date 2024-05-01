@@ -1,4 +1,3 @@
-#include <iostream>
 #include <chrono>
 #include <thread>
 #include "include/chip.h"
@@ -19,7 +18,7 @@ int main(int argc, char* args[]) {
     // Call initialize()
     // Load the game (loadProgram)
     //chip8.displayGraphics();
-    chip8.loadProgram("../chip8-roms/programs/6-keypad.ch8");
+    chip8.loadProgram("../chip8-roms/games/Pong (1 player).ch8");
     int clock_time_period = 1000/CLOCK_FREQ; // Rounded to the nearest millisecond
     while(chip8.checkValidPC() and not quit_flag) {
         // Check for key-presses
