@@ -457,7 +457,7 @@ void CHIP8:: DRW() {
     int sum = 0;
     for (int pixel_elem: gfx) { sum += pixel_elem; }
     sprintf(debug_message, "0x%X: CHIP8::DRW. x = 0x%X, y = 0x%X, n = 0x%X, V[F] = 0x%X, pc = 0x%X\n",
-            opcode, , y, n, V[0xf], pc);
+            opcode, x, y, n, V[0xf], pc);
     debugger.debug(debug_message);
 }
 
