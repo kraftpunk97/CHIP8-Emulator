@@ -12,40 +12,40 @@
 #include <bitset>
 #include "chip.h"
 
-using namespace std;
+char debug_message[500];
 
 void CHIP8::opcode0() {
-    cout << "Entering opcode0" << "\n";
+    debugger.debug("Entering opcode0\n");
     u_char x = (opcode & 0x0f00) >> 8;
     (this->*opcode0_table[x])();
 }
 
 void CHIP8::opcode00() {
-    cout << "Entering opcode00" << "\n";
+    debugger.debug("Entering opcode00\n");
     u_char x = (opcode & 0x00f0) >> 4;
     (this->*opcode00_table[x])();
 }
 
 void CHIP8::opcode00E() {
-    cout << "Entering opcode00E" << "\n";
+    debugger.debug("Entering opcode00E\n");
     u_char x = (opcode & 0x000f);
     (this->*opcode00E_table[x])();
 }
 
 void CHIP8::opcode8() {
-    cout << "Entering opcode8" << "\n";
+    debugger.debug("Entering opcode8\n");
     u_char k = opcode & 0x000f;
     (this->*opcode8_table[k])();
 }
 
 void CHIP8::opcodeF() {
-    cout << "Entering opcodeF" << "\n";
+    debugger.debug("Entering opcodeF\n");
     u_char kk = opcode & 0x00ff;
     (this->*opcodeF_table[kk])();
 }
 
 void CHIP8::opcodeE() {
-    cout << "Entering opcodeE" << "\n";
+    debugger.debug("Entering opcodeE\n");
     u_char kk = opcode & 0x00ff;
     if (kk == 0x9e) {
         CHIP8::SKP();
@@ -57,10 +57,9 @@ void CHIP8::opcodeE() {
 }
 
 void CHIP8::cpuNULL() {
-    cout << setw(4) << setfill('0') << hex << opcode;
     pc += 2;
-    cout << ": CHIP8::cpuNULL ." <<
-            "pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::cpuNULL. pc = 0x%X\n", opcode, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::CLS() {
@@ -69,11 +68,9 @@ void CHIP8::CLS() {
         pixel = false;
     }
     draw_flag = true;
-    cout << setw(4) << setfill('0') << hex << opcode;
     pc += 2;
-    draw_flag = true;
-    cout << ": CHIP8::CLS ." <<
-            "pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::CLS. pc = 0x%X\n", opcode, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::RET() {
@@ -87,8 +84,8 @@ void CHIP8::RET() {
     // execute the next instruction to prevent runaway recursion.
     pc = stack[sp] + 2;
     sp -= 1;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::RET. pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::RET. pc = 0x%X, sp = 0x%X\n", opcode, pc, sp);
+    debugger.debug(debug_message);
 
 }
 
@@ -109,8 +106,8 @@ void CHIP8::JP_addr() {
      * The interpreter sets the program counter to nnn.
      */
      pc = opcode & 0x0fff; // extract the last 3 nibbles.
-     cout << setw(4) << setfill('0') << hex << opcode;
-     cout << ": CHIP8::JP_addr. pc = " << pc << "\n";
+     sprintf(debug_message, "0x%X: CHIP8::JP_addr. pc = 0x%X\n", opcode, pc);
+     debugger.debug(debug_message);
 }
 
 void CHIP8::CALL() {
@@ -126,11 +123,8 @@ void CHIP8::CALL() {
     sp += 1;
     stack[sp] = pc;
     pc = nnn;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::CALL. "
-            " sp = " << static_cast<u_short>(sp) <<
-            " stack[sp] = " << stack[sp] <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::CALL. sp = 0x%X, stack[sp] = 0x%X, pc = 0x%X\n", opcode, sp, stack[sp], pc);
+    debugger.debug(debug_message);
 
 }
 
@@ -143,14 +137,10 @@ void CHIP8::SE_addr() {
      */
     u_char kk = (opcode & 0x00ff);
     u_char x = (opcode & 0x0f00) >> 8;
-
     pc += V[x] == kk ? 4 : 2;
-
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SE_addr. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " kk = " << static_cast<u_short>(kk) <<
-            " pc = " << static_cast<u_short>(pc) << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SE_addr. kk = 0x%X, x = 0x%X, V[x] = 0x%X, pc = 0x%X\n",
+            opcode,kk, x, V[x], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SNE_addr() {
@@ -163,12 +153,9 @@ void CHIP8::SNE_addr() {
      u_char kk = (opcode & 0x00ff);
 
      pc += V[x] != kk ? 4 : 2;
-
-     cout << setw(4) << setfill('0') << hex << opcode;
-     cout << ": CHIP8::SNE_addr. x = " << static_cast<u_short>(x) <<
-             " Vx = " << static_cast<u_short>(V[x]) <<
-             " kk = " << static_cast<u_short>(kk) <<
-             " pc = " << static_cast<u_short>(pc) << "\n";
+     sprintf(debug_message, "0x%X: CHIP8::SNE_addr. x = 0x%X, V[x] = 0x%X, kk = 0x%X, pc = 0x%X\n",
+             opcode, x, V[x], kk, pc);
+     debugger.debug(debug_message);
 }
 
 void CHIP8::SE_Vx_Vy() {
@@ -184,13 +171,9 @@ void CHIP8::SE_Vx_Vy() {
 
     if (k == 0x0) {
         pc += V[x] == V[y] ? 4 : 2;
-        cout << setw(4) << setfill('0') << hex << opcode;
-        cout << ": CHIP8::SE_Vx_Vy. "
-                " x = " << static_cast<u_short>(x) <<
-                " y = " << static_cast<u_short>(y) <<
-                " Vx = " << static_cast<u_short>(V[x]) <<
-                " Vy = " << static_cast<u_short>(V[y]) <<
-                " pc = " << pc << "\n";
+        sprintf(debug_message, "0x%X: CHIP8::SE_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], pc);
+        debugger.debug(debug_message);
     }
     else
         cpuNULL();
@@ -204,11 +187,8 @@ void CHIP8::LD_Vx_byte() {
 
     V[x] = opcode & 0x0fff;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_Vx_byte. "
-            "x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x])  <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_Vx_byte. x = 0x%X, V[x] = 0x%X, pc = 0x%X", opcode, x, V[x], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::ADD_addr() {
@@ -222,12 +202,9 @@ void CHIP8::ADD_addr() {
 
     V[x] += kk;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::ADD_addr. "
-            " x = " << static_cast<u_short>(x) <<
-            " kk = " << static_cast<u_short>(kk) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::ADD_addr. x = 0x%X, V[x] = 0x%X, kk = 0x%X, pc = 0x%X\n",
+             opcode, x, V[x], kk, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_Vx_Vy() {
@@ -239,13 +216,9 @@ void CHIP8::LD_Vx_Vy() {
 
     V[x] = V[y];
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_Vx_Vy. "
-            " x = " << static_cast<u_short>(x) <<
-            " y = " << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::OR_Vx_Vy() {
@@ -258,13 +231,9 @@ void CHIP8::OR_Vx_Vy() {
 
     V[x] = V[x] | V[y];
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::OR_Vx_Vy. "
-            " x = " << static_cast<u_short>(x) <<
-            " y = " << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::OR_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::AND_Vx_Vy() {
@@ -277,13 +246,9 @@ void CHIP8::AND_Vx_Vy() {
 
     V[x] = V[x] & V[y];
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::AND_Vx_Vy. "
-            " x = " << static_cast<u_short>(x) <<
-            " y = " << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::AND_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::XOR_Vx_Vy() {
@@ -296,13 +261,9 @@ void CHIP8::XOR_Vx_Vy() {
 
     V[x] = V[x] ^ V[y];
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::XOR_Vx_Vy. "
-            " x = " << static_cast<u_short>(x) <<
-            " y = " << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::XOR_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::ADD_Vx_Vy() {
@@ -320,16 +281,10 @@ void CHIP8::ADD_Vx_Vy() {
     VF_temp = V[x] > (0xff-V[y]) ? 0x01 : 0x00;
     V[x] = V[x] + V[y];
     V[0xf] = VF_temp;
-
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::ADD_Vx_Vy. "
-            " x = "  << static_cast<u_short>(x) <<
-            " y = "  << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]) <<
-            " VF = " << static_cast<u_short>(V[0xf]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::ADD_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, V[f] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], V[0xf], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SUB_Vx_Vy() {
@@ -340,21 +295,16 @@ void CHIP8::SUB_Vx_Vy() {
      */
     u_char x = (opcode & 0x0f00) >> 8;
     u_char y = (opcode & 0x00f0) >> 4;
-    u_char VF_temp;
-
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SUB_Vx_Vy. "
-            " x = "  << static_cast<u_short>(x) <<
-            " y = "  << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]);
+    u_char VF_temp, Vx_before;
+    Vx_before = V[x];
     VF_temp = V[x]>=V[y] ? 0x01 : 0x00;
     V[x] = V[x] - V[y];
     V[0xf] = VF_temp;
     pc += 2;
-    cout << " Vx after = "  << static_cast<u_short>(V[x]) <<
-            " VF = " << static_cast<u_short>(V[0xf]) <<
-            " pc = " << hex << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SUB_Vx_Vy. x = 0x%X, y = 0x%X,V[x](before) = 0x%X, "
+                           "V[x](after) = 0x%X, V[y] = 0x%X, V[f] = 0x%X, pc = 0x%X\n",
+            opcode, x, y, Vx_before, V[x], V[y], V[0xf], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SHR_Vx() {
@@ -369,12 +319,9 @@ void CHIP8::SHR_Vx() {
     V[x] = V[x] >> 1;
     V[0xf] = VF_temp;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SHR_Vx. "
-            " x = "  << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " VF = " << static_cast<u_short>(V[0xf]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SHR_Vx. x = 0x%X, V[x] = 0x%X, V[F] = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], V[0xf], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SUBN_Vx_Vy() {
@@ -391,14 +338,9 @@ void CHIP8::SUBN_Vx_Vy() {
     V[x] = V[y] - V[x];
     V[0xf] = VF_temp;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SUBN_Vx_Vy. "
-            " x = "  << static_cast<u_short>(x) <<
-            " y = "  << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]) <<
-            " VF = " << static_cast<u_short>(V[0xf]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SUBN_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, V[f] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], V[0xf], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SHL_Vx() {
@@ -414,12 +356,9 @@ void CHIP8::SHL_Vx() {
     V[x] = V[x] << 1;
     V[0xf] = VF_temp;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SUB_Vx_Vy. "
-            " x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " VF = " << static_cast<u_short>(V[0xf]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SHL_Vx. x = 0x%X, V[x] = 0x%X, V[f] = 0x%X, pc = 0x%X\n",
+                opcode, x, V[x], V[0xf], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SNE_Vx_Vy() {
@@ -432,13 +371,9 @@ void CHIP8::SNE_Vx_Vy() {
     u_char y = (opcode & 0x00f0) >> 4;
 
     pc += V[x] != V[y] ? 4 : 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SNE_Vx_Vy. "
-            " x = " << static_cast<u_short>(x) <<
-            " y = " << static_cast<u_short>(y) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " Vy = " << static_cast<u_short>(V[y]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SNE_Vx_Vy. x = 0x%X, y = 0x%X, V[x] = 0x%X, V[y] = 0x%X, pc = 0x%X\n",
+                opcode, x, y, V[x], V[y], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_I_addr() {
@@ -448,10 +383,8 @@ void CHIP8::LD_I_addr() {
      */
     I = opcode & 0x0fff;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_I_addr.";
-    cout << "I = " << I << " ";
-    cout << "pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_I_addr. I = 0x%X, pc = 0x%X\n", opcode, I, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::JP_V0_addr() {
@@ -460,10 +393,7 @@ void CHIP8::JP_V0_addr() {
      * The program counter is set to nnn plus the value of V0.
      */
     pc = V[0x00] + (opcode&0x0fff);
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::JP_V0_addr . "
-            "V0" << static_cast<u_short>(V[0x0]) <<
-            "pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::JP_V0_addr. V0 = 0x%X, pc = 0x%X\n", opcode, V[0x0], pc);
 }
 
 void CHIP8::RND() {
@@ -479,12 +409,9 @@ void CHIP8::RND() {
     uniform_int_distribution<mt19937::result_type> dist(0x00, 0xff);
     V[x] = kk & (u_char)dist(rng);
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::RND . "
-            "x = " << static_cast<u_short>(x) <<
-            "kk = " << static_cast<u_short>(kk) <<
-            "Vx = " << static_cast<u_short>(V[x]) <<
-            "pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::RND. kk = 0x%X, x = 0x%X, V[x] = 0x%X, pc = 0x%X\n",
+            opcode, kk, x, V[x], pc);
+    debugger.debug(debug_message);
 
 }
 
@@ -529,12 +456,9 @@ void CHIP8:: DRW() {
 
     int sum = 0;
     for (int pixel_elem: gfx) { sum += pixel_elem; }
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::DRW. x = " << static_cast<u_short>(x) <<
-            " y = " << static_cast<u_short>(y) <<
-            " n = " << static_cast<u_short>(n) <<
-            " VF = " << static_cast<u_short>(V[0xf]) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::DRW. x = 0x%X, y = 0x%X, n = 0x%X, V[F] = 0x%X, pc = 0x%X\n",
+            opcode, , y, n, V[0xf], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SKP() {
@@ -544,11 +468,9 @@ void CHIP8::SKP() {
      */
     u_char x = (opcode & 0x0f00) >> 8;
     pc += keys[V[x]] ? 4 : 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SKP. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " keys[Vx] = " << keys[V[x]] <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SKP. x = 0x%X, V[x] = 0x%X, keys[V[x]] = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], keys[V[x]], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::SKNP() {
@@ -558,11 +480,9 @@ void CHIP8::SKNP() {
      */
     u_char x = (opcode & 0x0f00) >> 8;
     pc += keys[V[x]] ? 2 : 4;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::SKNP. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " keys[Vx] = " << keys[V[x]] <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::SKNP. x = 0x%X, V[x] = 0x%X, keys[V[x]] = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], keys[V[x]], pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_Vx_DT() {
@@ -572,11 +492,10 @@ void CHIP8::LD_Vx_DT() {
     u_char x = (opcode & 0x0f00) >> 8;
     V[x] = delay_timer;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_Vx_DT. x = " << static_cast<u_short>(x) <<
-            " DT = "  << static_cast<u_short>(delay_timer) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " pc = " << pc << "\n";
+
+    sprintf(debug_message, "0x%X: CHIP8::LD_Vx_DT. x = 0x%X, V[x] = 0x%X, DT = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], delay_timer, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_Vx_K() {
@@ -585,11 +504,11 @@ void CHIP8::LD_Vx_K() {
      * then the value of that key is stored in Vx.
      */
     u_char x = (opcode & 0x0f00) >> 8;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_Vx_K. x = " << static_cast<u_short>(x);
+
     switch (wait_for_key) {
         case 0: {
-            cout << "\n";
+            sprintf(debug_message, "0x%X: CHIP8::LD_Vx_K. x = 0x%X, pc = 0x%X\n", opcode, x, pc);
+            debugger.debug(debug_message);
             for (auto key: keys) {
                 if (key) {
                     wait_for_key = 1;
@@ -600,7 +519,6 @@ void CHIP8::LD_Vx_K() {
             break;
         }
         case 1: {
-            cout << "\n";
             for (int i=0; i<KEYPAD_SIZE; i++) {
                 if (keys[i]) {
                     V[x] = i;
@@ -614,14 +532,14 @@ void CHIP8::LD_Vx_K() {
         case 2: {
             for (auto key: keys) {
                 if (key) {
-                    cout << " Vx = " << static_cast<u_short>(V[x])
-                         << " Keypress detected\n";
+                    sprintf(debug_message, "0x%X: CHIP8::LD_Vx_K. x = 0x%X, Key pressed. pc = 0x%X\n",
+                            opcode, x, pc+2);
+                    debugger.debug(debug_message);
                     return;
                 }
             }
             wait_for_key = 0;
             pc += 2;
-            cout << "\n";
         }
     }
 }
@@ -633,11 +551,9 @@ void CHIP8::LD_DT_Vx() {
     u_char x = (opcode & 0x0f00) >> 8;
     delay_timer = V[x];
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_DT_Vx. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " DT = "  << static_cast<u_short>(delay_timer) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_DT_Vx. x = 0x%X, V[x] = 0x%X, DT = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], delay_timer, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_ST_Vx() {
@@ -647,11 +563,9 @@ void CHIP8::LD_ST_Vx() {
     u_char x = (opcode & 0x0f00) >> 8;
     sound_timer = V[x];
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_ST_Vx. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " ST = "  << static_cast<u_short>(sound_timer) <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_ST_Vx. x = 0x%X, V[x] = 0x%X, ST = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], sound_timer, pc);
+    debugger.debug(debug_message);
 
 }
 
@@ -662,11 +576,9 @@ void CHIP8::ADD_I_Vx() {
     u_char x = (opcode & 0x0f00) >> 8;
     I = I + V[x];
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::ADD_I_Vx. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " I = " << I <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::ADD_I_Vx. x = 0x%X, V[x] = 0x%X, I = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], I, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_F_Vx() {
@@ -679,11 +591,9 @@ void CHIP8::LD_F_Vx() {
     u_char x = (opcode & 0x0f00) >> 8;
     I = FONT_START_MEM + V[x] * 5;
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_F_Vx. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " I = " << I <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_F_Vx. x = 0x%X, V[x] = 0x%X, I = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], I, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_B_Vx() {
@@ -698,11 +608,9 @@ void CHIP8::LD_B_Vx() {
     memory[I+1] = static_cast<u_char>((V[x]%100) / 10);
     memory[I+2] = static_cast<u_char>(V[x] % 10);
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_B_Vx. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " I = " << I <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_B_Vx. x = 0x%X, V[x] = 0x%X, I = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], I, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_I_Vx() {
@@ -716,11 +624,9 @@ void CHIP8::LD_I_Vx() {
         memory[I+i] = V[i];
     }
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_I_Vx. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " I = " << I <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_I_Vx. x = 0x%X, V[x] = 0x%X, I = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], I, pc);
+    debugger.debug(debug_message);
 }
 
 void CHIP8::LD_Vx_I() {
@@ -734,11 +640,9 @@ void CHIP8::LD_Vx_I() {
         V[i] = memory[I+i];
     }
     pc += 2;
-    cout << setw(4) << setfill('0') << hex << opcode;
-    cout << ": CHIP8::LD_Vx_I. x = " << static_cast<u_short>(x) <<
-            " Vx = " << static_cast<u_short>(V[x]) <<
-            " I = " << I <<
-            " pc = " << pc << "\n";
+    sprintf(debug_message, "0x%X: CHIP8::LD_Vx_I. x = 0x%X, V[x] = 0x%X, I = 0x%X, pc = 0x%X\n",
+            opcode, x, V[x], I, pc);
+    debugger.debug(debug_message);
 }
 
 #endif

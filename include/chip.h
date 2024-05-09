@@ -9,6 +9,7 @@
 #include <string>
 #include "device.h"
 #include "specs.h"
+#include "debugger.h"
 
 
 class CHIP8 {
@@ -28,10 +29,8 @@ private:
     u_char delay_timer = 0x00; // Counts @ 60Hz
     u_char sound_timer = 0x00; // Counts @ 60Hz, sound buzzer when zero.
     bool draw_flag = false;
-    int wait_for_key = 0;
+    int wait_for_key = 0;  // Has a key been pressed?
 
-
-//    Device device;
 
     // Instructions
     void cpuNULL();
@@ -124,9 +123,9 @@ private:
     void (CHIP8::*opcodeF_table[0xff])();
 
 public:
-
+    Debugger debugger;
     CHIP8();
-    void loadProgram(std::string pathname);
+    int loadProgram(std::string pathname);
     bool checkDrawFlag();
     bool checkValidPC();
     void setKeys(Device *pDevice);
