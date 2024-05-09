@@ -97,7 +97,7 @@ private:
                                         &CHIP8::JP_V0_addr,
                                         &CHIP8::RND,
                                         &CHIP8::DRW,
-                                        &CHIP8::opcodeE, // TODO: Create opcodeE
+                                        &CHIP8::opcodeE,
                                         &CHIP8::opcodeF
     };
     void (CHIP8::*opcode0_table[16])();
