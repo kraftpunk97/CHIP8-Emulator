@@ -13,7 +13,7 @@ private:
 public:
     Debugger();
     void setDebug(bool debug);
-    void debug(std::string message);
+    void debug (const std::string &message) const;
 };
 
 

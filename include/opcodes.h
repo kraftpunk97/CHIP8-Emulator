@@ -404,9 +404,9 @@ void CHIP8::RND() {
      */
     u_char x = (opcode & 0x0f00) >> 8;
     u_char kk = opcode & 0x00ff;
-    random_device dev;
-    mt19937 rng(dev());
-    uniform_int_distribution<mt19937::result_type> dist(0x00, 0xff);
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(0x00, 0xff);
     V[x] = kk & (u_char)dist(rng);
     pc += 2;
     sprintf(debug_message, "0x%X: CHIP8::RND. kk = 0x%X, x = 0x%X, V[x] = 0x%X, pc = 0x%X\n",

@@ -125,9 +125,9 @@ private:
 public:
     Debugger debugger;
     CHIP8();
-    int loadProgram(std::string pathname);
-    bool checkDrawFlag();
-    bool checkValidPC();
+    int loadProgram(const std::string &pathname);
+    bool checkDrawFlag() const;
+    bool checkValidPC() const;
     void setKeys(Device *pDevice);
     void resetKeys();
     void emulateCycle();

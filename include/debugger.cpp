@@ -13,7 +13,7 @@ void Debugger::setDebug(bool debug) {
     m_debug = debug;
 }
 
-void Debugger::debug(std::string message) {
+void Debugger::debug (const std::string &message) const {
     if (m_debug) {
         std::cout << message;
     }

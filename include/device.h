@@ -11,8 +11,6 @@
 #include <thread>
 #include "specs.h"
 
-using namespace std;
-
 class Device {
 private:
     SDL_Window* window;
@@ -40,7 +38,7 @@ public:
     // updateDisplay needs to be defined HERE (and not in display.cpp),
     // because TEMPLATE member functions need to be defined where they are declared;
     // otherwise it causes linkage issues.
-    template <size_t N> void updateDisplay(array<bool, N> gfx) {
+    template <size_t N> void updateDisplay(std::array<bool, N> gfx) {
         for (int y = 0; y < screen_height; y += GRID_SIZE) {
             for (int x = 0; x < screen_width; x += GRID_SIZE) {
 
@@ -66,7 +64,7 @@ public:
         } while (not *quit_flag);
     }
 
-    void getKeyboardState(array<bool, 16> &keys) {
+    void getKeyboardState(std::array<bool, 16> &keys) {
         keys[0x1] = keyboard_state[SDL_SCANCODE_1];
         keys[0x2] = keyboard_state[SDL_SCANCODE_2];
         keys[0x3] = keyboard_state[SDL_SCANCODE_3];

@@ -1,7 +1,6 @@
 //
 // Created by kxg220013 on 3/11/2024.
 //
-#include <sys/stat.h>
 #include <iostream>
 #include <fstream>
 #include "chip.h"
@@ -54,9 +53,9 @@ CHIP8::CHIP8() {
 }
 
 
-int CHIP8::loadProgram(std::string pathname) {
-    ifstream file;
-    file.open(pathname, ios::binary);
+int CHIP8::loadProgram(const std::string &pathname) {
+    std::ifstream file;
+    file.open(pathname, std::ios::binary);
 
     if (not file.is_open()) {
         return 1;
@@ -75,8 +74,8 @@ int CHIP8::loadProgram(std::string pathname) {
     return 0;
 }
 
-bool CHIP8::checkDrawFlag() { return draw_flag; }
-bool CHIP8::checkValidPC() { return pc < MEMORY_SIZE; }
+bool CHIP8::checkDrawFlag() const { return draw_flag; }
+bool CHIP8::checkValidPC() const { return pc < MEMORY_SIZE; }
 
 void CHIP8::setKeys(Device *pDevice) {
     pDevice->getKeyboardState(keys);
